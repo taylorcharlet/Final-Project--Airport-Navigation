@@ -15,12 +15,18 @@ class Application : public bobcat::Application_ {
     bobcat::Dropdown *start;
     bobcat::Dropdown *end;
 
+    bobcat::Button *search;
+
+    Fl_Scroll *results;
+
     ArrayList<Vertex*> cities;
     Graph g;
 
     void initData();
     void initInterface();
 
+    void handleClick(bobcat::Widget *sender);
+    
 public:
     Application();
 
