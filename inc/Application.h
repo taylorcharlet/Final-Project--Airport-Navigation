@@ -14,13 +14,16 @@ class Application : public bobcat::Application_ {
     bobcat::Window *window;
     bobcat::Dropdown *start;
     bobcat::Dropdown *end;
+    bobcat::Dropdown *pref;
 
     bobcat::Button *search;
 
     Fl_Scroll *results;
 
     ArrayList<Vertex*> cities;
-    Graph g;
+    ArrayList<Vertex*> cities2;
+    Graph timeGraph;
+    Graph costGraph;
 
     void initData();
     void initInterface();
