@@ -29,8 +29,7 @@ void Application::handleClick(bobcat::Widget *sender) {
     Waypoint *path;
 
     if(pref->value() == 0) {
-        path = costGraph.ucs(costCities[startIndex], costCities[destIndex]);
-        cout << costGraph << endl;
+        path = timeGraph.ucs2(timeCities[startIndex], timeCities[destIndex]);
     } else if (pref->value() == 1) {
         path = timeGraph.bfs(timeCities[startIndex], timeCities[destIndex]);
         cout << "1" << endl;
@@ -40,26 +39,46 @@ void Application::handleClick(bobcat::Widget *sender) {
     }
 
     system("clear");
-
     if (path) {
         cout << "We found a path" << endl;
         Waypoint *temp = path;
+        Stack<Waypoint*> stops;
+        Stack<Vertex*> stopsAgain;
         int y = results->y() + 10;
         while (temp != nullptr) {
-            results->add(new TextBox(40, y, 300, 25, temp->vertex->data));
-            y += 40;
-            if (temp->parent != nullptr) {
-                results->add(new TextBox(
-                    40, y, 300, 25,
-                    "    Flight cost: $" + to_string(temp->weight)));
-                y += 40;
-            }
-            cout << temp->vertex->data << " " << temp->partialCost << endl;
+            stops.push(temp);
+            stopsAgain.push(temp->vertex);
             temp = temp->parent;
+        }
+        
+        int i = 1;
+        int numStops = stops.size();
+        while(!stops.isEmpty()) {
+            std::string s;
+            Waypoint *curr = stops.pop();
+            if (curr->parent != nullptr){
+                if(pref->value() == 1) {
+                    s = "    Number of Stops: " + to_string(i);
+                }else if (pref->value() == 0){
+                    s = "    Flight Cost: $" + to_string(curr->weight2);
+                }else{
+                    s = "    Flight Time: " + to_string(curr->weight) + " Hours";
+                }
+                results->add(new TextBox(40, y, 300, 25,s));
+                y += 40;
+                i++;
+            }
+            results->add(new TextBox(40, y, 300, 25, curr->vertex->data));
+            y += 40;
+             
+            //cout << curr->vertex->data << " " << curr->partialCost << endl;
+            //cout << curr->vertex->data << " " << curr->partialCost2 << endl;
 
+            stats->label("Total Flight Time: " + to_string(curr->partialCost) + "    Total Cost: " + to_string(curr->partialCost2) + "    Total Stops: " + to_string(numStops - 1));
 
             window->redraw();
         }
+
     } else {
         cout << "There is no path" << endl;
     }    
@@ -77,14 +96,14 @@ void Application::initData() {
 
     while(std::getline(vertices, city)) {
          timeCities.append(new Vertex(city));
-         costCities.append(new Vertex(city));
+         //costCities.append(new Vertex(city));
     }
 
     vertices.close();
 
     for (int i = 0; i < timeCities.size(); i++) {
         timeGraph.addVertex(timeCities[i]);
-        costGraph.addVertex(costCities[i]);
+        //costGraph.addVertex(costCities[i]);
     }
 
     std::ifstream edges ("./assets/edges.csv");
@@ -131,13 +150,29 @@ void Application::initData() {
             }
         }
 
-        timeGraph.addEdge(timeCities[city1], timeCities[city2], duration);
-        costGraph.addEdge(costCities[city1], costCities[city2], price);
+        if(isConnected(city1, city2)) {
+            throw std::logic_error("Duplicate connection already exist");
+        }
+
+        timeGraph.addEdge(timeCities[city1], timeCities[city2], duration, price);
+        //costGraph.addEdge(costCities[city1], costCities[city2], price);
         
     }    
 
     edges.close();
 
+}
+
+bool Application::isConnected(int c1, int c2){
+    Vertex* v1 = timeCities[c1];
+    Vertex* v2 = timeCities[c2];
+
+    for(int i = 0; i < v1->edgeList.size(); i++) {
+        if(v1->edgeList[i]->to == v2) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void Application::initInterface() {

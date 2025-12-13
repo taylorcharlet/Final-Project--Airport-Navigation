@@ -21,14 +21,13 @@ class Application : public bobcat::Application_ {
     Fl_Scroll *results;
 
     ArrayList<Vertex*> timeCities;
-    ArrayList<Vertex*> costCities;
     Graph timeGraph;
-    Graph costGraph;
 
     void initData();
     void initInterface();
 
     void handleClick(bobcat::Widget *sender);
+    bool isConnected(int c1, int c2);
     
 public:
     Application();
