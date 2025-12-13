@@ -70,11 +70,8 @@ void Application::handleClick(bobcat::Widget *sender) {
             }
             results->add(new TextBox(40, y, 300, 25, curr->vertex->data));
             y += 40;
-             
-            //cout << curr->vertex->data << " " << curr->partialCost << endl;
-            //cout << curr->vertex->data << " " << curr->partialCost2 << endl;
 
-            stats->label("Total Flight Time: " + to_string(curr->partialCost) + "    Total Cost: " + to_string(curr->partialCost2) + "    Total Stops: " + to_string(numStops - 1));
+            stats->label("Total Flight Time: " + to_string(curr->partialCost) + " Hours    Total Cost: $" + to_string(curr->partialCost2) + "    Total Stops: " + to_string(numStops - 2));
 
             window->redraw();
         }
@@ -96,14 +93,12 @@ void Application::initData() {
 
     while(std::getline(vertices, city)) {
          timeCities.append(new Vertex(city));
-         //costCities.append(new Vertex(city));
     }
 
     vertices.close();
 
     for (int i = 0; i < timeCities.size(); i++) {
         timeGraph.addVertex(timeCities[i]);
-        //costGraph.addVertex(costCities[i]);
     }
 
     std::ifstream edges ("./assets/edges.csv");
@@ -154,9 +149,7 @@ void Application::initData() {
             throw std::logic_error("Duplicate connection already exist");
         }
 
-        timeGraph.addEdge(timeCities[city1], timeCities[city2], duration, price);
-        //costGraph.addEdge(costCities[city1], costCities[city2], price);
-        
+        timeGraph.addEdge(timeCities[city1], timeCities[city2], duration, price);       
     }    
 
     edges.close();
@@ -194,14 +187,12 @@ void Application::initInterface() {
     search = new Button(20, 170, 360, 25, "Search");
     ON_CLICK(search, Application::handleClick);
 
-    stats = new TextBox(20, 210, 760, 25, "Total Flight Time:  Total Cost:  Number of Stops:  ");
+    stats = new TextBox(20, 210, 760, 25, "");
     stats->align(FL_ALIGN_CENTER);
 
     results = new Fl_Scroll(420, 30, 360, 170, "Results");
     results->align(FL_ALIGN_TOP_LEFT);
     results->box(FL_THIN_UP_BOX);
-
-    //stats = new TextBox(20, 200, 760, 25, "Total Flight Time:  Total Cost:  Number of Stops:  ");
 
     window->show();
 }
